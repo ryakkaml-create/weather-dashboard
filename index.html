@@ -2,56 +2,50 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Dashboard Pro</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Dashboard</title>
 
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <div class="top-bar">
-            <button id="themeToggle">🌙</button>
-        </div>
+    <h1>🌦 Weather Dashboard</h1>
 
-        <div class="weather-card glass">
+    <button id="themeToggle">🌙</button>
 
-            <h1>Weather Dashboard</h1>
+    <div class="search">
+        <input id="cityInput" placeholder="Enter city">
+        <button id="searchBtn">Search</button>
+    </div>
 
-            <div class="search-box">
-                <input id="cityInput" placeholder="Enter city">
-                <button id="searchBtn">Search</button>
-            </div>
+    <button id="locationBtn">📍 My Location</button>
 
-            <button id="locationBtn">📍 Use My Location</button>
+    <div id="loader" class="loader hidden"></div>
 
-            <div id="loader" class="loader hidden"></div>
+    <p id="message"></p>
 
-            <div id="message"></div>
+    <div id="weatherResult" class="hidden">
 
-            <div id="weatherResult" class="hidden">
+        <h2 id="cityName"></h2>
 
-                <h2 id="cityName"></h2>
-                <img id="weatherIcon">
+        <img id="weatherIcon">
 
-                <p id="temperature"></p>
-                <p id="humidity"></p>
-                <p id="wind"></p>
-                <p id="condition"></p>
-            </div>
-
-        </div>
-
-        <h2 class="forecast-title">5-Day Forecast</h2>
-        <div id="forecast" class="forecast"></div>
+        <p id="temperature"></p>
+        <p id="humidity"></p>
+        <p id="wind"></p>
+        <p id="condition"></p>
 
     </div>
 
-    <script src="script.js"></script>
-</body>
+    <h3>5-Day Forecast</h3>
+    <div id="forecast"></div>
 
+</div>
+
+<script src="script.js"></script>
+</body>
 </html>
