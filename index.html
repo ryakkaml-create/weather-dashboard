@@ -4,78 +4,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Weather Dashboard</title>
+    <title>Weather Dashboard Pro</title>
 
     <link rel="stylesheet" href="style.css">
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
     <div class="container">
 
-        <div class="weather-card">
+        <div class="top-bar">
+            <button id="themeToggle">🌙</button>
+        </div>
 
-            <h1>🌦 Weather Dashboard</h1>
+        <div class="weather-card glass">
 
-            <p class="subtitle">
-                Search weather by city name
-            </p>
+            <h1>Weather Dashboard</h1>
 
             <div class="search-box">
-
-                <input
-                    type="text"
-                    id="cityInput"
-                    placeholder="Enter city name">
-
-                <button id="searchBtn">
-                    Search
-                </button>
-
+                <input id="cityInput" placeholder="Enter city">
+                <button id="searchBtn">Search</button>
             </div>
+
+            <button id="locationBtn">📍 Use My Location</button>
+
+            <div id="loader" class="loader hidden"></div>
 
             <div id="message"></div>
 
             <div id="weatherResult" class="hidden">
 
                 <h2 id="cityName"></h2>
+                <img id="weatherIcon">
 
-                <div class="weather-info">
-
-                    <div class="info-box">
-                        <h3>🌡 Temperature</h3>
-                        <p id="temperature">--</p>
-                    </div>
-
-                    <div class="info-box">
-                        <h3>💧 Humidity</h3>
-                        <p id="humidity">--</p>
-                    </div>
-
-                    <div class="info-box">
-                        <h3>🌬 Wind Speed</h3>
-                        <p id="wind">--</p>
-                    </div>
-
-                    <div class="info-box">
-                        <h3>☁ Condition</h3>
-                        <p id="condition">--</p>
-                    </div>
-
-                </div>
-
+                <p id="temperature"></p>
+                <p id="humidity"></p>
+                <p id="wind"></p>
+                <p id="condition"></p>
             </div>
 
         </div>
 
+        <h2 class="forecast-title">5-Day Forecast</h2>
+        <div id="forecast" class="forecast"></div>
+
     </div>
 
     <script src="script.js"></script>
-
 </body>
+
 </html>
