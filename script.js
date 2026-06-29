@@ -1,100 +1,126 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+const apiKey = "YOUR_API_KEY";
+
+const cityInput = document.getElementById("cityInput");
+const searchBtn = document.getElementById("searchBtn");
+const locationBtn = document.getElementById("locationBtn");
+
+const loader = document.getElementById("loader");
+const message = document.getElementById("message");
+
+const weatherResult = document.getElementById("weatherResult");
+const forecast = document.getElementById("forecast");
+
+const themeToggle = document.getElementById("themeToggle");
+
+searchBtn.onclick = () => getWeather(cityInput.value);
+locationBtn.onclick = getLocationWeather;
+
+themeToggle.onclick = () => {
+    document.body.classList.toggle("dark");
+    themeToggle.textContent =
+        document.body.classList.contains("dark") ? "☀️" : "🌙";
+};
+
+function showLoader() {
+    loader.classList.remove("hidden");
+}
+function hideLoader() {
+    loader.classList.add("hidden");
 }
 
-body {
-    background: linear-gradient(135deg, #4f46e5, #06b6d4);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+async function getWeather(city) {
+    if (!city) return;
+
+    saveCity(city);
+
+    showLoader();
+    message.textContent = "";
+
+    try {
+        const res = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+        );
+
+        if (!res.ok) throw new Error("City not found");
+
+        const data = await res.json();
+
+        updateUI(data);
+        getForecast(city);
+
+    } catch (err) {
+        message.textContent = err.message;
+    }
+
+    hideLoader();
 }
 
-.container {
-    width: 100%;
-    max-width: 600px;
-    padding: 20px;
+async function getLocationWeather() {
+
+    navigator.geolocation.getCurrentPosition(async pos => {
+
+        showLoader();
+
+        const { latitude, longitude } = pos.coords;
+
+        const res = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
+        );
+
+        const data = await res.json();
+
+        updateUI(data);
+        getForecast(data.name);
+
+        hideLoader();
+
+    });
 }
 
-.weather-card {
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    text-align: center;
+function updateUI(data) {
+
+    weatherResult.classList.remove("hidden");
+
+    document.getElementById("cityName").textContent = data.name;
+    document.getElementById("temperature").textContent = data.main.temp + "°C";
+    document.getElementById("humidity").textContent = "Humidity: " + data.main.humidity;
+    document.getElementById("wind").textContent = "Wind: " + data.wind.speed;
+
+    document.getElementById("condition").textContent = data.weather[0].description;
+
+    document.getElementById("weatherIcon").src =
+        `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 }
 
-h1 {
-    font-size: 28px;
-    margin-bottom: 10px;
+async function getForecast(city) {
+
+    const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
+    );
+
+    const data = await res.json();
+
+    forecast.innerHTML = "";
+
+    const days = data.list.filter(item => item.dt_txt.includes("12:00:00"));
+
+    days.slice(0, 5).forEach(day => {
+
+        forecast.innerHTML += `
+        <div class="card">
+            <p>${new Date(day.dt_txt).toDateString().slice(0,10)}</p>
+            <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png">
+            <p>${day.main.temp}°C</p>
+        </div>
+        `;
+    });
 }
 
-.subtitle {
-    color: gray;
-    margin-bottom: 20px;
+function saveCity(city) {
+    localStorage.setItem("lastCity", city);
 }
 
-.search-box {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-input {
-    flex: 1;
-    padding: 12px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    outline: none;
-}
-
-button {
-    padding: 12px 20px;
-    border: none;
-    background: #4f46e5;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-button:hover {
-    background: #3730a3;
-}
-
-#message {
-    margin-bottom: 15px;
-    color: red;
-    font-size: 14px;
-}
-
-.weather-info {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.info-box {
-    background: #f3f4f6;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-.info-box h3 {
-    font-size: 14px;
-    color: #555;
-}
-
-.info-box p {
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 5px;
-}
-
-.hidden {
-    display: none;
-}
+window.onload = () => {
+    const lastCity = localStorage.getItem("lastCity");
+    if (lastCity) getWeather(lastCity);
+};
