@@ -28,30 +28,33 @@ loader.classList.add("hidden");
 
 async function getWeather(city) {
 
-if (!city) return;
+    if (!city) return;
 
-saveCity(city);
+    showLoader();
+    message.textContent = "";
 
-showLoader();
-message.textContent = "";
+    try {
 
-try {
-const res = await fetch(
-`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
-);
+        const res = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+        );
 
-if (!res.ok) throw new Error("City not found");
+        const data = await res.json();
 
-const data = await res.json();
+        // ✅ REAL FIX HERE
+        if (data.cod !== 200) {
+            throw new Error(data.message || "City not found");
+        }
 
-updateUI(data);
-getForecast(city);
+        updateUI(data);
+        getForecast(city);
 
-} catch (err) {
-message.textContent = err.message;
-}
+    } catch (err) {
+        message.textContent = "⚠ " + err.message;
+        weatherResult.classList.add("hidden");
+    }
 
-hideLoader();
+    hideLoader();
 }
 
 async function getLocationWeather() {
