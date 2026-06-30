@@ -1,37 +1,50 @@
-const apiKey = "YOUR_OPENWEATHER_API_KEY";
+const apiKey = "YOUR_API_KEY_HERE";
 
 const cityInput = document.getElementById("cityInput");
 const searchBtn = document.getElementById("searchBtn");
-const locationBtn = document.getElementById("locationBtn");
-const themeToggle = document.getElementById("themeToggle");
 
-const loader = document.getElementById("loader");
 const message = document.getElementById("message");
+const loader = document.getElementById("loader");
 
-const weatherResult = document.getElementById("weatherResult");
-const forecast = document.getElementById("forecast");
+const weatherBox = document.getElementById("weatherBox");
 
-searchBtn.onclick = () => getWeather(cityInput.value);
-locationBtn.onclick = getLocationWeather;
+const cityName = document.getElementById("cityName");
+const weatherIcon = document.getElementById("weatherIcon");
 
-themeToggle.onclick = () => {
-document.body.classList.toggle("dark");
-};
+const temp = document.getElementById("temp");
+const humidity = document.getElementById("humidity");
+const wind = document.getElementById("wind");
+const condition = document.getElementById("condition");
+
+searchBtn.addEventListener("click", () => {
+    getWeather(cityInput.value.trim());
+});
+
+cityInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        getWeather(cityInput.value.trim());
+    }
+});
 
 function showLoader() {
-loader.classList.remove("hidden");
+    loader.classList.remove("hidden");
 }
 
 function hideLoader() {
-loader.classList.add("hidden");
+    loader.classList.add("hidden");
 }
 
 async function getWeather(city) {
 
-    if (!city) return;
+    if (!city) {
+        message.textContent = "Please enter a city name";
+        return;
+    }
+
+    message.textContent = "";
+    weatherBox.classList.add("hidden");
 
     showLoader();
-    message.textContent = "";
 
     try {
 
@@ -41,88 +54,33 @@ async function getWeather(city) {
 
         const data = await res.json();
 
-        // ✅ REAL FIX HERE
         if (data.cod !== 200) {
-            throw new Error(data.message || "City not found");
+            throw new Error(data.message);
         }
 
-        updateUI(data);
-        getForecast(city);
+        displayWeather(data);
 
     } catch (err) {
-        message.textContent = "⚠ " + err.message;
-        weatherResult.classList.add("hidden");
+        message.textContent = err.message;
     }
 
     hideLoader();
 }
 
-async function getLocationWeather() {
+function displayWeather(data) {
 
-navigator.geolocation.getCurrentPosition(async (pos) => {
+    weatherBox.classList.remove("hidden");
 
-showLoader();
+    cityName.textContent = `${data.name}, ${data.sys.country}`;
 
-const { latitude, longitude } = pos.coords;
+    temp.textContent = `🌡 Temperature: ${data.main.temp} °C`;
 
-const res = await fetch(
-`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
-);
+    humidity.textContent = `💧 Humidity: ${data.main.humidity}%`;
 
-const data = await res.json();
+    wind.textContent = `🌬 Wind Speed: ${data.wind.speed} m/s`;
 
-updateUI(data);
-getForecast(data.name);
+    condition.textContent = `☁ Condition: ${data.weather[0].main}`;
 
-hideLoader();
-
-});
+    weatherIcon.src =
+        `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 }
-
-function updateUI(data) {
-
-weatherResult.classList.remove("hidden");
-
-document.getElementById("cityName").textContent = data.name;
-document.getElementById("temperature").textContent = data.main.temp + "°C";
-document.getElementById("humidity").textContent = "Humidity: " + data.main.humidity;
-document.getElementById("wind").textContent = "Wind: " + data.wind.speed;
-document.getElementById("condition").textContent = data.weather[0].description;
-
-document.getElementById("weatherIcon").src =
-`https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-}
-
-async function getForecast(city) {
-
-const res = await fetch(
-`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
-);
-
-const data = await res.json();
-
-forecast.innerHTML = "";
-
-const days = data.list.filter(d => d.dt_txt.includes("12:00:00"));
-
-days.slice(0,5).forEach(day => {
-
-forecast.innerHTML += `
-<div class="card">
-<p>${new Date(day.dt_txt).toDateString().slice(0,10)}</p>
-<img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png">
-<p>${day.main.temp}°C</p>
-</div>
-`;
-
-});
-}
-
-function saveCity(city) {
-localStorage.setItem("lastCity", city);
-}
-
-window.onload = () => {
-const last = localStorage.getItem("lastCity");
-if (last) getWeather(last);
-};
